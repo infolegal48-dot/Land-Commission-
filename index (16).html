@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Land Commission</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E2A47;
+    --paper:#FFFFFF;
+    --paper-alt:#E4EEF7;
+    --paper-line:#C4D9EB;
+    --clay:#1D5C96;
+    --clay-dark:#154A7A;
+    --blue:#2E7DB8;
+    --moss:#2E7D5B;
+    --red:#A13F3C;
+    --card-bg:#F7FAFD;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    line-height:1.5;
+  }
+  ::selection{background:var(--clay);color:var(--paper);}
+  .wrap{max-width:1040px;margin:0 auto;padding:28px 20px 80px;}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  /* header */
+  header{border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:20px;}
+
+  .notice{
+    background:var(--paper-alt);
+    border:1.5px solid var(--ink);
+    border-left:6px solid var(--blue);
+    border-radius:2px;
+    padding:16px 18px;
+    margin-bottom:26px;
+  }
+  .notice .notice-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.04em;
+    color:var(--blue);
+    margin-bottom:6px;
+    display:block;
+  }
+  .notice p{margin:0 0 8px;font-size:13.5px;color:#33495F;}
+  .notice p:last-child{margin-bottom:0;}
+
+  .section-block{
+    padding-top:34px;
+    margin-top:34px;
+    border-top:2px solid var(--ink);
+    scroll-margin-top:20px;
+  }
+  .section-block:first-of-type{border-top:none;margin-top:0;padding-top:0;}
+  .section-block h2.section-title{font-size:20px;margin-bottom:4px;}
+  .section-block .section-sub{font-size:13px;color:#45607A;margin:0 0 18px;max-width:60ch;}
+  .header-row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;}
+  header h1{font-size:26px;letter-spacing:-0.01em;}
+  header p{margin:6px 0 0;color:#45607A;max-width:52ch;font-size:14px;}
+  .you{display:flex;align-items:center;gap:8px;font-size:13px;}
+  .you input{
+    font-family:'Inter',sans-serif;
+    border:1.5px solid var(--ink);
+    background:var(--card-bg);
+    padding:6px 8px;
+    font-size:13px;
+    width:150px;
+    border-radius:3px;
+  }
+  .you-label{color:#45607A;}
+  .saved-tick{color:var(--moss);font-size:12px;opacity:0;transition:opacity .4s;}
+  .saved-tick.show{opacity:1;}
+
+  .layout{display:flex;gap:32px;align-items:flex-start;}
+  .content{flex:1;min-width:0;}
+
+  /* nav styled like folder tabs, now a sticky vertical sidebar */
+  .tabs{
+    display:flex;flex-direction:column;gap:6px;
+    position:sticky;top:20px;flex-shrink:0;width:172px;
+  }
+  .tab{
+    font-family:'Fraunces',serif;
+    font-size:14px;
+    padding:10px 14px;
+    cursor:pointer;
+    background:var(--paper-alt);
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    color:#45607A;
+    white-space:nowrap;
+    text-decoration:none;
+    border-left:5px solid var(--ink);
+  }
+  .tab .count{font-family:'IBM Plex Mono',monospace;font-size:11px;opacity:.7;margin-left:5px;}
+  .tab.active{background:var(--card-bg);color:var(--ink);border-left-color:var(--blue);}
+  .tab:hover:not(.active){background:#D3E3F0;}
+
+  @media(max-width:720px){
+    .layout{flex-direction:column;}
+    .tabs{position:static;flex-direction:row;flex-wrap:wrap;width:auto;}
+  }
+
+  html{scroll-behavior:smooth;}
+  section.panel{display:block;}
+
+  /* generic layout helpers */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+  @media(max-width:720px){.cols{grid-template-columns:1fr;}}
+
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:12.5px;color:#45607A;margin-bottom:4px;}
+  .field input,.field select,.field textarea{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:8px 9px;
+    border:1.5px solid var(--ink);
+    background:var(--card-bg);
+    border-radius:3px;
+    color:var(--ink);
+  }
+  .field textarea{resize:vertical;min-height:64px;font-family:inherit;}
+  .field input:focus,.field select:focus,.field textarea:focus{
+    outline:2px solid var(--blue);outline-offset:1px;
+  }
+
+  .btn{
+    font-family:'Fraunces',serif;
+    font-size:14px;
+    padding:9px 18px;
+    background:var(--clay);
+    color:var(--paper);
+    border:1.5px solid var(--ink);
+    border-radius:3px;
+    cursor:pointer;
+    box-shadow:3px 3px 0 var(--ink);
+    transition:transform .08s, box-shadow .08s;
+  }
+  .btn:hover{background:var(--clay-dark);}
+  .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink);}
+  .btn.secondary{background:var(--card-bg);color:var(--ink);}
+  .btn.small{font-size:12px;padding:5px 10px;box-shadow:2px 2px 0 var(--ink);}
+  .btn.small:active{box-shadow:1px 1px 0 var(--ink);}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;box-shadow:none;}
+
+  .chip{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:2px 8px;
+    border-radius:10px;
+    border:1px solid currentColor;
+  }
+  .chip.pending{color:var(--clay);}
+  .chip.progress{color:var(--blue);}
+  .chip.done{color:var(--moss);}
+  .chip.revoked{color:var(--red);}
+  .chip.active-status{color:var(--moss);}
+  .chip.sold{color:#7A8FA3;}
+
+  /* index card */
+  .card{
+    background:var(--card-bg);
+    border:1.5px solid var(--ink);
+    border-radius:2px;
+    padding:16px 18px;
+    margin-bottom:14px;
+    position:relative;
+  }
+  .card .deed{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:#5C7690;
+    letter-spacing:.02em;
+  }
+  .card h3{font-size:17px;margin:3px 0 6px;}
+  .card .meta{font-size:13px;color:#45607A;margin-bottom:8px;}
+  .card .meta span{margin-right:14px;}
+  .card .row-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .card p.desc{font-size:13.5px;color:#33495F;margin:8px 0 0;}
+
+  .stamp{
+    position:absolute;
+    top:14px;
+    right:16px;
+    border:2px solid var(--moss);
+    color:var(--moss);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.06em;
+    padding:3px 8px;
+    border-radius:4px;
+    transform:rotate(4deg);
+    opacity:.85;
+  }
+
+  .empty{
+    border:1.5px dashed var(--paper-line);
+    padding:22px 18px;
+    text-align:left;
+    color:#5C7690;
+    font-size:13.5px;
+    border-radius:3px;
+  }
+
+  .sub-list{margin-top:10px;padding-top:10px;border-top:1px solid var(--paper-line);}
+  .sub-item{font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px dotted var(--paper-line);}
+  .sub-item:last-child{border-bottom:none;}
+
+  .type-select{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .type-select button{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    padding:6px 11px;
+    border:1.5px solid var(--ink);
+    background:var(--card-bg);
+    border-radius:14px;
+    cursor:pointer;
+  }
+  .type-select button.sel{background:var(--blue);color:var(--paper);}
+
+  .stepper{display:flex;gap:0;margin:10px 0 4px;}
+  .step{flex:1;text-align:center;font-size:10.5px;font-family:'IBM Plex Mono',monospace;color:#6E8AA3;padding-bottom:6px;border-bottom:3px solid var(--paper-line);}
+  .step.on{color:var(--blue);border-bottom-color:var(--blue);}
+
+  .search{margin-bottom:16px;}
+  .helper{font-size:12.5px;color:#5C7690;margin:6px 0 16px;}
+  .toast{
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:var(--paper);
+    padding:9px 16px;border-radius:4px;font-size:13px;
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;
+    font-family:'Inter',sans-serif;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+  footer.note{margin-top:36px;padding-top:14px;border-top:1px solid var(--paper-line);font-size:12px;color:#5C7690;}
+  footer.note p{margin:0;}
+  .company-info{
+    display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline;
+    font-size:13px;color:var(--ink);margin-bottom:10px;
+  }
+  .company-info strong{font-family:'Fraunces',serif;font-size:15px;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-row">
+      <div>
+        <h1>Land Commission</h1>
+        <p>Register land, request surveys, list parcels for sale, and manage who has permission to use or transfer them.</p>
+      </div>
+      <div class="you">
+        <span class="you-label">Acting as</span>
+        <input id="userName" type="text" placeholder="Your name" maxlength="40">
+        <span class="saved-tick" id="savedTick">saved</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="notice">
+    <span class="notice-label">About the Lands Commission</span>
+    <p>The Lands Commission is established by Article 258 of the 1992 Constitution and the Lands Commission Act, 2008 (Act 767) as a body corporate with perpetual succession, a common seal and may sue and be sued in its corporate name.</p>
+    <p>The current Lands Commission, as part of the Public Sector Reform Programs and the Land Administration Project, has been substantially remodeled by Act 767 to increase its efficiency and effectiveness.</p>
+  </div>
+
+  <div class="layout">
+  <nav class="tabs" id="tabs">
+    <a class="tab active" href="#panel-registry" data-tab="registry">Registry <span class="count" id="cnt-registry">0</span></a>
+    <a class="tab" href="#panel-register" data-tab="register">Register land</a>
+    <a class="tab" href="#panel-survey" data-tab="survey">Survey <span class="count" id="cnt-survey">0</span></a>
+    <a class="tab" href="#panel-market" data-tab="market">Marketplace <span class="count" id="cnt-market">0</span></a>
+    <a class="tab" href="#panel-permissions" data-tab="permissions">Permissions <span class="count" id="cnt-permissions">0</span></a>
+  </nav>
+
+  <div class="content">
+  <!-- REGISTRY -->
+  <section class="panel section-block active" id="panel-registry">
+    <h2 class="section-title">Registry</h2>
+    <p class="section-sub">Every parcel recorded in this tool, in one searchable list.</p>
+    <input class="field" style="margin-bottom:16px" id="searchBox" type="text" placeholder="Search by owner, location, or deed number">
+    <div id="registryList"></div>
+  </section>
+
+  <!-- REGISTER -->
+  <section class="panel section-block" id="panel-register">
+    <h2 class="section-title">Register land</h2>
+    <p class="section-sub">Add a new parcel and issue it a deed number.</p>
+    <div class="cols">
+      <div>
+        <h2 style="font-size:18px;margin-bottom:14px;">Register a parcel</h2>
+        <div class="field">
+          <label for="r-owner">Owner name</label>
+          <input id="r-owner" type="text" placeholder="e.g. Ama Boateng">
+        </div>
+        <div class="field">
+          <label for="r-location">Location / address</label>
+          <input id="r-location" type="text" placeholder="e.g. Ahodwo, Kumasi">
+        </div>
+        <div class="field">
+          <label for="r-region">Region / district</label>
+          <input id="r-region" type="text" placeholder="e.g. Ashanti Region">
+        </div>
+        <div class="field">
+          <label for="r-size">Size (acres)</label>
+          <input id="r-size" type="number" min="0" step="0.01" placeholder="e.g. 0.5">
+        </div>
+        <div class="field">
+          <label for="r-coords">Coordinates (optional)</label>
+          <input id="r-coords" type="text" placeholder="e.g. 6.6885° N, 1.6244° W">
+        </div>
+        <div class="field">
+          <label for="r-desc">Description / boundary notes</label>
+          <textarea id="r-desc" placeholder="Landmarks, adjoining owners, existing structures..."></textarea>
+        </div>
+        <button class="btn" id="btnRegister">Register parcel</button>
+        <p class="helper">A deed number is issued automatically once you register.</p>
+      </div>
+      <div>
+        <h2 style="font-size:18px;margin-bottom:14px;">Preview</h2>
+        <div class="card" id="previewCard">
+          <span class="deed">DEED PENDING</span>
+          <h3 id="pv-owner">Owner name</h3>
+          <div class="meta">
+            <span id="pv-location">Location</span>
+            <span id="pv-size">Size</span>
+          </div>
+          <p class="desc" id="pv-desc">Description will appear here as you type.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SURVEY -->
+  <section class="panel section-block" id="panel-survey">
+    <h2 class="section-title">Survey</h2>
+    <p class="section-sub">Request a boundary or site survey — on a registered parcel, or on land you haven't registered yet.</p>
+    <div class="cols">
+      <div>
+        <h2 style="font-size:18px;margin-bottom:14px;">Request a survey</h2>
+        <div class="type-select" id="surveyModeSelect">
+          <button data-mode="existing" class="sel">Registered parcel</button>
+          <button data-mode="new">Land not yet registered</button>
+        </div>
+        <div class="field" id="s-parcel-field">
+          <label for="s-parcel">Parcel</label>
+          <select id="s-parcel"></select>
+        </div>
+        <div class="field" id="s-location-field" style="display:none">
+          <label for="s-location">Location of the land</label>
+          <input id="s-location" type="text" placeholder="e.g. Ejisu, Ashanti Region">
+        </div>
+        <div class="field" id="s-owner-field" style="display:none">
+          <label for="s-owner">Owner name, if known</label>
+          <input id="s-owner" type="text" placeholder="e.g. Kofi Mensah">
+        </div>
+        <div class="field">
+          <label for="s-notes">What should the surveyor check?</label>
+          <textarea id="s-notes" placeholder="Boundary disputes, access road, elevation, etc."></textarea>
+        </div>
+        <button class="btn" id="btnSurvey">Request survey</button>
+        <p class="helper">This logs a survey request. Update its status as the work progresses.</p>
+      </div>
+      <div>
+        <h2 style="font-size:18px;margin-bottom:14px;">Open &amp; recent surveys</h2>
+        <div id="surveyList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARKETPLACE -->
+  <section class="panel section-block" id="panel-market">
+    <h2 class="section-title">Marketplace</h2>
+    <p class="section-sub">List a registered parcel for sale, or tell sellers what land you're looking to buy.</p>
+    <div class="cols">
+      <div>
+        <div class="type-select" id="marketModeSelect">
+          <button data-mode="sell" class="sel">Sell land</button>
+          <button data-mode="buy">Buy land</button>
+        </div>
+
+        <div id="sellForm">
+          <h2 style="font-size:18px;margin-bottom:14px;">List a parcel for sale</h2>
+          <div class="field">
+            <label for="m-parcel">Parcel</label>
+            <select id="m-parcel"></select>
+          </div>
+          <div class="field">
+            <label for="m-price">Asking price</label>
+            <input id="m-price" type="text" placeholder="e.g. GH₵ 85,000">
+          </div>
+          <div class="field">
+            <label for="m-contact">Contact for buyers</label>
+            <input id="m-contact" type="text" placeholder="Phone or email">
+          </div>
+          <button class="btn" id="btnList">List parcel</button>
+          <p class="helper">Buyers can express interest below. This tool doesn't process payments — it records who to follow up with.</p>
+        </div>
+
+        <div id="buyForm" style="display:none">
+          <h2 style="font-size:18px;margin-bottom:14px;">Land you want to buy</h2>
+          <label style="display:block;font-size:12.5px;color:#45607A;margin-bottom:4px;">Type of land</label>
+          <div class="type-select" id="buyTypeSelect">
+            <button data-type="residential" class="sel">Residential</button>
+            <button data-type="commercial">Commercial</button>
+            <button data-type="agricultural">Agricultural</button>
+            <button data-type="any">Any type</button>
+          </div>
+          <div class="field">
+            <label for="b-location">Preferred location</label>
+            <input id="b-location" type="text" placeholder="e.g. Near Kumasi Airport">
+          </div>
+          <div class="field">
+            <label for="b-size">Size needed</label>
+            <input id="b-size" type="text" placeholder="e.g. 1–2 acres">
+          </div>
+          <div class="field">
+            <label for="b-budget">Budget</label>
+            <input id="b-budget" type="text" placeholder="e.g. up to GH₵ 60,000">
+          </div>
+          <div class="field">
+            <label for="b-notes">Anything else a seller should know</label>
+            <textarea id="b-notes" placeholder="Timeline, must-haves, deal breakers..."></textarea>
+          </div>
+          <div class="field">
+            <label for="b-contact">Your contact</label>
+            <input id="b-contact" type="text" placeholder="Phone or email">
+          </div>
+          <button class="btn" id="btnBuyRequest">Post buying request</button>
+          <p class="helper">Sellers browsing the marketplace can see what you're looking for and reach out.</p>
+        </div>
+      </div>
+      <div>
+        <h2 style="font-size:18px;margin-bottom:14px;">For sale</h2>
+        <div id="marketList"></div>
+        <h2 style="font-size:18px;margin:22px 0 14px;">Buyers looking for land</h2>
+        <div id="buyList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERMISSIONS -->
+  <section class="panel section-block" id="panel-permissions">
+    <h2 class="section-title">Permissions</h2>
+    <p class="section-sub">Grant permission on land you control, or request permission for land you want to acquire rights to.</p>
+    <div class="cols">
+      <div>
+        <div class="type-select" id="permModeSelect">
+          <button data-mode="grant" class="sel">Grant permission</button>
+          <button data-mode="request">Request permission</button>
+        </div>
+
+        <div id="grantForm">
+          <h2 style="font-size:18px;margin-bottom:14px;">Grant permission</h2>
+          <div class="field">
+            <label for="p-parcel">Parcel</label>
+            <select id="p-parcel"></select>
+          </div>
+          <div class="field">
+            <label for="p-name">Grant to (name)</label>
+            <input id="p-name" type="text" placeholder="e.g. Kwame Asare">
+          </div>
+          <div class="field">
+            <label for="p-contact">Their contact (optional)</label>
+            <input id="p-contact" type="text" placeholder="Phone or email">
+          </div>
+          <label style="display:block;font-size:12.5px;color:#45607A;margin-bottom:4px;">Permission type</label>
+          <div class="type-select" id="typeSelect">
+            <button data-type="view" class="sel">View only</button>
+            <button data-type="use">Use / occupy</button>
+            <button data-type="lease">Lease</button>
+            <button data-type="transfer">Transfer rights</button>
+          </div>
+          <div class="field">
+            <label for="p-expiry">Expires (optional)</label>
+            <input id="p-expiry" type="date">
+          </div>
+          <button class="btn" id="btnGrant">Grant permission</button>
+        </div>
+
+        <div id="requestForm" style="display:none">
+          <h2 style="font-size:18px;margin-bottom:14px;">Request permission</h2>
+          <div class="type-select" id="reqParcelModeSelect">
+            <button data-mode="existing" class="sel">Registered parcel</button>
+            <button data-mode="new">Land not yet registered</button>
+          </div>
+          <div class="field" id="pr-parcel-field">
+            <label for="pr-parcel">Parcel</label>
+            <select id="pr-parcel"></select>
+          </div>
+          <div class="field" id="pr-location-field" style="display:none">
+            <label for="pr-location">Location of the land</label>
+            <input id="pr-location" type="text" placeholder="e.g. Asokwa, Kumasi">
+          </div>
+          <div class="field" id="pr-owner-field" style="display:none">
+            <label for="pr-owner">Owner name, if known</label>
+            <input id="pr-owner" type="text" placeholder="e.g. Yaa Asantewaa">
+          </div>
+          <label style="display:block;font-size:12.5px;color:#45607A;margin-bottom:4px;">Permission you're requesting</label>
+          <div class="type-select" id="reqTypeSelect">
+            <button data-type="view" class="sel">View only</button>
+            <button data-type="use">Use / occupy</button>
+            <button data-type="lease">Lease</button>
+            <button data-type="transfer">Transfer rights</button>
+          </div>
+          <div class="field">
+            <label for="pr-contact">Your contact</label>
+            <input id="pr-contact" type="text" placeholder="Phone or email">
+          </div>
+          <div class="field">
+            <label for="pr-notes">Why you need this permission</label>
+            <textarea id="pr-notes" placeholder="Purpose, duration, etc."></textarea>
+          </div>
+          <button class="btn" id="btnRequestPerm">Send request</button>
+          <p class="helper">The parcel owner can approve or decline your request below.</p>
+        </div>
+      </div>
+      <div>
+        <h2 style="font-size:18px;margin-bottom:14px;">Permission requests</h2>
+        <div id="permRequestList"></div>
+        <h2 style="font-size:18px;margin:22px 0 14px;">Active permissions</h2>
+        <div id="permList"></div>
+      </div>
+    </div>
+  </section>
+  </div>
+  </div>
+
+  <footer class="note">
+    <div class="company-info">
+      <strong>Land Commission</strong>
+      <span>Second Circular Road, Cantonments, Accra</span>
+      <span class="mono">GPS Address: WG-0035-5482</span>
+    </div>
+    <p>Records here are shared with everyone using this tool, the way an open parcel registry would be. Anyone with the link can see registered parcels, surveys, listings, and permissions.</p>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  let parcels = [], surveys = [], listings = [], permissions = [], buyerRequests = [], permissionRequests = [];
+  let selectedType = 'view';
+  const toastEl = document.getElementById('toast');
+
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(()=>toastEl.classList.remove('show'), 1800);
+  }
+
+  function esc(s){
+    return (s||'').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function fmtDate(iso){
+    if(!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
+  }
+
+  function genId(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  }
+
+  function deedNumber(index){
+    const year = new Date().getFullYear();
+    return 'PR-' + year + '-' + String(index+1).padStart(4,'0');
+  }
+
+  // ---------- storage ----------
+  async function loadAll(){
+    const results = await Promise.allSettled([
+      window.storage.get('registry-parcels', true),
+      window.storage.get('registry-surveys', true),
+      window.storage.get('registry-listings', true),
+      window.storage.get('registry-permissions', true),
+      window.storage.get('registry-profile', false),
+      window.storage.get('registry-buyer-requests', true),
+      window.storage.get('registry-permission-requests', true),
+    ]);
+    parcels = safeParse(results[0], []);
+    surveys = safeParse(results[1], []);
+    listings = safeParse(results[2], []);
+    permissions = safeParse(results[3], []);
+    const profile = safeParse(results[4], null);
+    buyerRequests = safeParse(results[5], []);
+    permissionRequests = safeParse(results[6], []);
+    if(profile && profile.name){
+      document.getElementById('userName').value = profile.name;
+    }
+  }
+
+  function safeParse(settledResult, fallback){
+    if(settledResult.status !== 'fulfilled' || !settledResult.value) return fallback;
+    try{ return JSON.parse(settledResult.value.value); }
+    catch(e){ return fallback; }
+  }
+
+  async function saveParcels(){
+    try{ await window.storage.set('registry-parcels', JSON.stringify(parcels), true); }
+    catch(e){ toast('Could not save — try again'); console.error(e); }
+  }
+  async function saveSurveys(){
+    try{ await window.storage.set('registry-surveys', JSON.stringify(surveys), true); }
+    catch(e){ toast('Could not save — try again'); console.error(e); }
+  }
+  async function saveListings(){
+    try{ await window.storage.set('registry-listings', JSON.stringify(listings), true); }
+    catch(e){ toast('Could not save — try again'); console.error(e); }
+  }
+  async function savePermissions(){
+    try{ await window.storage.set('registry-permissions', JSON.stringify(permissions), true); }
+    catch(e){ toast('Could not save — try again'); console.error(e); }
+  }
+  async function saveBuyerRequests(){
+    try{ await window.storage.set('registry-buyer-requests', JSON.stringify(buyerRequests), true); }
+    catch(e){ toast('Could not save — try again'); console.error(e); }
+  }
+  async function savePermissionRequests(){
+    try{ await window.storage.set('registry-permission-requests', JSON.stringify(permissionRequests), true); }
+    catch(e){ toast('Could not save — try again'); console.error(e); }
+  }
+  async function saveProfile(name){
+    try{
+      await window.storage.set('registry-profile', JSON.stringify({name}), false);
+      const tick = document.getElementById('savedTick');
+      tick.classList.add('show');
+      setTimeout(()=>tick.classList.remove('show'), 1200);
+    }catch(e){ console.error(e); }
+  }
+
+  function currentUser(){
+    return document.getElementById('userName').value.trim() || 'Unnamed user';
+  }
+
+  function parcelById(id){
+    return parcels.find(p => p.id === id);
+  }
+
+  // ---------- nav: highlight the section currently in view while scrolling ----------
+  const navLinks = Array.from(document.querySelectorAll('#tabs .tab'));
+  const sections = navLinks.map(a => document.querySelector(a.getAttribute('href')));
+  const setActiveLink = (id) => {
+    navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+  };
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting) setActiveLink(entry.target.id);
+    });
+  }, {rootMargin: '-80px 0px -70% 0px', threshold: 0});
+  sections.forEach(s => s && observer.observe(s));
+
+  // ---------- name persistence ----------
+  let nameTimer;
+  document.getElementById('userName').addEventListener('input', (e)=>{
+    clearTimeout(nameTimer);
+    nameTimer = setTimeout(()=> saveProfile(e.target.value.trim()), 500);
+  });
+
+  // ---------- register ----------
+  function updatePreview(){
+    document.getElementById('pv-owner').textContent = document.getElementById('r-owner').value || 'Owner name';
+    document.getElementById('pv-location').textContent = document.getElementById('r-location').value || 'Location';
+    const size = document.getElementById('r-size').value;
+    document.getElementById('pv-size').textContent = size ? size + ' acres' : 'Size';
+    document.getElementById('pv-desc').textContent = document.getElementById('r-desc').value || 'Description will appear here as you type.';
+  }
+  ['r-owner','r-location','r-size','r-desc'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', updatePreview);
+  });
+
+  document.getElementById('btnRegister').addEventListener('click', async ()=>{
+    const owner = document.getElementById('r-owner').value.trim();
+    const location = document.getElementById('r-location').value.trim();
+    if(!owner || !location){
+      toast('Add at least an owner name and location');
+      return;
+    }
+    const parcel = {
+      id: genId(),
+      deed: deedNumber(parcels.length),
+      owner,
+      location,
+      region: document.getElementById('r-region').value.trim(),
+      size: document.getElementById('r-size').value.trim(),
+      coords: document.getElementById('r-coords').value.trim(),
+      desc: document.getElementById('r-desc').value.trim(),
+      registeredBy: currentUser(),
+      registeredAt: new Date().toISOString(),
+    };
+    parcels.push(parcel);
+    await saveParcels();
+    ['r-owner','r-location','r-region','r-size','r-coords','r-desc'].forEach(id=>document.getElementById(id).value='');
+    updatePreview();
+    renderAll();
+    toast('Registered ' + parcel.deed);
+  });
+
+  // ---------- survey ----------
+  let surveyMode = 'existing';
+  document.getElementById('surveyModeSelect').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    surveyMode = btn.dataset.mode;
+    document.querySelectorAll('#surveyModeSelect button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    const existing = surveyMode === 'existing';
+    document.getElementById('s-parcel-field').style.display = existing ? '' : 'none';
+    document.getElementById('s-location-field').style.display = existing ? 'none' : '';
+    document.getElementById('s-owner-field').style.display = existing ? 'none' : '';
+  });
+
+  document.getElementById('btnSurvey').addEventListener('click', async ()=>{
+    const notes = document.getElementById('s-notes').value.trim();
+    let entry = {
+      id: genId(),
+      notes,
+      status: 'pending',
+      requestedBy: currentUser(),
+      requestedAt: new Date().toISOString(),
+      log: [],
+    };
+    if(surveyMode === 'existing'){
+      const parcelId = document.getElementById('s-parcel').value;
+      if(!parcelId){ toast('Register a parcel first, or switch to "Land not yet registered"'); return; }
+      entry.parcelId = parcelId;
+    } else {
+      const location = document.getElementById('s-location').value.trim();
+      if(!location){ toast('Add the location of the land'); return; }
+      entry.landInfo = {
+        location,
+        owner: document.getElementById('s-owner').value.trim(),
+      };
+    }
+    surveys.push(entry);
+    await saveSurveys();
+    document.getElementById('s-notes').value = '';
+    document.getElementById('s-location').value = '';
+    document.getElementById('s-owner').value = '';
+    renderAll();
+    toast('Survey requested');
+  });
+
+  function advanceSurvey(id){
+    const s = surveys.find(x=>x.id===id);
+    if(!s) return;
+    const order = ['pending','in_progress','completed'];
+    const idx = order.indexOf(s.status);
+    if(idx < order.length - 1){
+      s.status = order[idx+1];
+      s.log.push({status:s.status, at:new Date().toISOString(), by: currentUser()});
+      saveSurveys();
+      renderAll();
+      toast('Survey marked ' + s.status.replace('_',' '));
+    }
+  }
+
+  // ---------- marketplace ----------
+  document.getElementById('marketModeSelect').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    document.querySelectorAll('#marketModeSelect button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    const selling = btn.dataset.mode === 'sell';
+    document.getElementById('sellForm').style.display = selling ? '' : 'none';
+    document.getElementById('buyForm').style.display = selling ? 'none' : '';
+  });
+
+  let selectedBuyType = 'residential';
+  document.getElementById('buyTypeSelect').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    selectedBuyType = btn.dataset.type;
+    document.querySelectorAll('#buyTypeSelect button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+  });
+
+  document.getElementById('btnList').addEventListener('click', async ()=>{
+    const parcelId = document.getElementById('m-parcel').value;
+    if(!parcelId){ toast('Register a parcel first'); return; }
+    const price = document.getElementById('m-price').value.trim();
+    const contact = document.getElementById('m-contact').value.trim();
+    if(!price){ toast('Add an asking price'); return; }
+    listings.push({
+      id: genId(),
+      parcelId,
+      price,
+      contact,
+      status: 'active',
+      listedBy: currentUser(),
+      listedAt: new Date().toISOString(),
+      interested: [],
+    });
+    await saveListings();
+    document.getElementById('m-price').value = '';
+    document.getElementById('m-contact').value = '';
+    renderAll();
+    toast('Listed for sale');
+  });
+
+  document.getElementById('btnBuyRequest').addEventListener('click', async ()=>{
+    const location = document.getElementById('b-location').value.trim();
+    const contact = document.getElementById('b-contact').value.trim();
+    if(!location){ toast('Add a preferred location'); return; }
+    if(!contact){ toast('Add a way for sellers to reach you'); return; }
+    buyerRequests.push({
+      id: genId(),
+      landType: selectedBuyType,
+      location,
+      size: document.getElementById('b-size').value.trim(),
+      budget: document.getElementById('b-budget').value.trim(),
+      notes: document.getElementById('b-notes').value.trim(),
+      contact,
+      status: 'active',
+      requestedBy: currentUser(),
+      requestedAt: new Date().toISOString(),
+    });
+    await saveBuyerRequests();
+    ['b-location','b-size','b-budget','b-notes','b-contact'].forEach(id=>document.getElementById(id).value='');
+    renderAll();
+    toast('Buying request posted');
+  });
+
+  function closeBuyRequest(id){
+    const b = buyerRequests.find(x=>x.id===id);
+    if(!b) return;
+    b.status = 'closed';
+    saveBuyerRequests();
+    renderAll();
+    toast('Buying request closed');
+  }
+
+  function expressInterest(listingId){
+    const l = listings.find(x=>x.id===listingId);
+    if(!l) return;
+    const name = currentUser();
+    const msg = prompt('Message to the seller (optional):', '');
+    if(msg === null) return;
+    l.interested.push({name, message: msg.trim(), at: new Date().toISOString()});
+    saveListings();
+    renderAll();
+    toast('Interest sent to seller');
+  }
+
+  function markSold(listingId){
+    const l = listings.find(x=>x.id===listingId);
+    if(!l) return;
+    l.status = 'sold';
+    saveListings();
+    renderAll();
+    toast('Marked as sold');
+  }
+
+  // ---------- permissions ----------
+  document.getElementById('permModeSelect').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    document.querySelectorAll('#permModeSelect button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    const granting = btn.dataset.mode === 'grant';
+    document.getElementById('grantForm').style.display = granting ? '' : 'none';
+    document.getElementById('requestForm').style.display = granting ? 'none' : '';
+  });
+
+  let reqParcelMode = 'existing';
+  document.getElementById('reqParcelModeSelect').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    reqParcelMode = btn.dataset.mode;
+    document.querySelectorAll('#reqParcelModeSelect button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+    const existing = reqParcelMode === 'existing';
+    document.getElementById('pr-parcel-field').style.display = existing ? '' : 'none';
+    document.getElementById('pr-location-field').style.display = existing ? 'none' : '';
+    document.getElementById('pr-owner-field').style.display = existing ? 'none' : '';
+  });
+
+  let selectedReqType = 'view';
+  document.getElementById('reqTypeSelect').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    selectedReqType = btn.dataset.type;
+    document.querySelectorAll('#reqTypeSelect button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+  });
+
+  document.getElementById('typeSelect').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    selectedType = btn.dataset.type;
+    document.querySelectorAll('#typeSelect button').forEach(b=>b.classList.remove('sel'));
+    btn.classList.add('sel');
+  });
+
+  document.getElementById('btnGrant').addEventListener('click', async ()=>{
+    const parcelId = document.getElementById('p-parcel').value;
+    if(!parcelId){ toast('Register a parcel first'); return; }
+    const name = document.getElementById('p-name').value.trim();
+    if(!name){ toast('Add who you\'re granting permission to'); return; }
+    permissions.push({
+      id: genId(),
+      parcelId,
+      grantedTo: name,
+      grantedToContact: document.getElementById('p-contact').value.trim(),
+      type: selectedType,
+      expiresAt: document.getElementById('p-expiry').value || null,
+      status: 'active',
+      grantedBy: currentUser(),
+      grantedAt: new Date().toISOString(),
+    });
+    await savePermissions();
+    document.getElementById('p-name').value = '';
+    document.getElementById('p-contact').value = '';
+    document.getElementById('p-expiry').value = '';
+    renderAll();
+    toast('Permission granted');
+  });
+
+  document.getElementById('btnRequestPerm').addEventListener('click', async ()=>{
+    const contact = document.getElementById('pr-contact').value.trim();
+    if(!contact){ toast('Add your contact so the owner can reach you'); return; }
+    let entry = {
+      id: genId(),
+      type: selectedReqType,
+      notes: document.getElementById('pr-notes').value.trim(),
+      contact,
+      status: 'pending',
+      requestedBy: currentUser(),
+      requestedAt: new Date().toISOString(),
+    };
+    if(reqParcelMode === 'existing'){
+      const parcelId = document.getElementById('pr-parcel').value;
+      if(!parcelId){ toast('Register a parcel first, or switch to "Land not yet registered"'); return; }
+      entry.parcelId = parcelId;
+    } else {
+      const location = document.getElementById('pr-location').value.trim();
+      if(!location){ toast('Add the location of the land'); return; }
+      entry.landInfo = {
+        location,
+        owner: document.getElementById('pr-owner').value.trim(),
+      };
+    }
+    permissionRequests.push(entry);
+    await savePermissionRequests();
+    document.getElementById('pr-contact').value = '';
+    document.getElementById('pr-notes').value = '';
+    document.getElementById('pr-location').value = '';
+    document.getElementById('pr-owner').value = '';
+    renderAll();
+    toast('Request sent');
+  });
+
+  function approvePermissionRequest(id){
+    const r = permissionRequests.find(x=>x.id===id);
+    if(!r) return;
+    r.status = 'approved';
+    permissions.push({
+      id: genId(),
+      parcelId: r.parcelId || null,
+      landInfo: r.landInfo || null,
+      grantedTo: r.requestedBy,
+      grantedToContact: r.contact,
+      type: r.type,
+      expiresAt: null,
+      status: 'active',
+      grantedBy: currentUser(),
+      grantedAt: new Date().toISOString(),
+    });
+    savePermissionRequests();
+    savePermissions();
+    renderAll();
+    toast('Request approved');
+  }
+
+  function declinePermissionRequest(id){
+    const r = permissionRequests.find(x=>x.id===id);
+    if(!r) return;
+    r.status = 'declined';
+    savePermissionRequests();
+    renderAll();
+    toast('Request declined');
+  }
+
+  function revokePermission(id){
+    const p = permissions.find(x=>x.id===id);
+    if(!p) return;
+    p.status = 'revoked';
+    savePermissions();
+    renderAll();
+    toast('Permission revoked');
+  }
+
+  // ---------- rendering ----------
+  const typeLabels = {view:'View only', use:'Use / occupy', lease:'Lease', transfer:'Transfer rights'};
+  const statusLabels = {pending:'Pending', in_progress:'In progress', completed:'Completed'};
+
+  function renderSelects(){
+    const options = parcels.length
+      ? parcels.map(p=>`<option value="${p.id}">${esc(p.deed)} — ${esc(p.owner)}, ${esc(p.location)}</option>`).join('')
+      : '<option value="">No parcels registered yet</option>';
+    ['s-parcel','m-parcel','p-parcel','pr-parcel'].forEach(id=>{
+      const sel = document.getElementById(id);
+      const prev = sel.value;
+      sel.innerHTML = options;
+      if(parcels.some(p=>p.id===prev)) sel.value = prev;
+    });
+  }
+
+  function renderRegistry(){
+    const q = document.getElementById('searchBox').value.trim().toLowerCase();
+    const list = document.getElementById('registryList');
+    const filtered = parcels.filter(p =>
+      !q || [p.owner,p.location,p.deed,p.region].join(' ').toLowerCase().includes(q)
+    ).slice().reverse();
+
+    if(!filtered.length){
+      list.innerHTML = `<div class="empty">${parcels.length ? 'No parcels match that search.' : 'No parcels registered yet. Use the Register land tab to add the first one.'}</div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(p=>{
+      const surveyCount = surveys.filter(s=>s.parcelId===p.id).length;
+      const listing = listings.find(l=>l.parcelId===p.id && l.status==='active');
+      const permCount = permissions.filter(x=>x.parcelId===p.id && x.status==='active').length;
+      return `
+        <div class="card">
+          <span class="stamp">registered</span>
+          <span class="deed">${esc(p.deed)} · registered ${fmtDate(p.registeredAt)} by ${esc(p.registeredBy)}</span>
+          <h3>${esc(p.owner)}</h3>
+          <div class="meta">
+            <span>${esc(p.location)}${p.region ? ', ' + esc(p.region) : ''}</span>
+            ${p.size ? `<span>${esc(p.size)} acres</span>` : ''}
+            ${p.coords ? `<span class="mono">${esc(p.coords)}</span>` : ''}
+          </div>
+          ${p.desc ? `<p class="desc">${esc(p.desc)}</p>` : ''}
+          <div class="row-actions">
+            <span class="chip ${surveyCount ? 'progress' : 'pending'}">${surveyCount} survey${surveyCount===1?'':'s'}</span>
+            <span class="chip ${listing ? 'active-status' : 'pending'}">${listing ? 'for sale: ' + esc(listing.price) : 'not listed'}</span>
+            <span class="chip ${permCount ? 'active-status' : 'pending'}">${permCount} active permission${permCount===1?'':'s'}</span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderSurveys(){
+    const list = document.getElementById('surveyList');
+    if(!surveys.length){
+      list.innerHTML = '<div class="empty">No surveys requested yet.</div>';
+      return;
+    }
+    const order = ['pending','in_progress','completed'];
+    list.innerHTML = surveys.slice().reverse().map(s=>{
+      const p = s.parcelId ? parcelById(s.parcelId) : null;
+      const idx = order.indexOf(s.status);
+      const landLine = p
+        ? esc(p.owner) + ', ' + esc(p.location)
+        : (s.landInfo ? esc(s.landInfo.location) + (s.landInfo.owner ? ' — owner: ' + esc(s.landInfo.owner) : '') + ' (not yet registered)' : '');
+      return `
+        <div class="card">
+          <span class="deed">${p ? esc(p.deed) : 'Unregistered land'} · requested ${fmtDate(s.requestedAt)} by ${esc(s.requestedBy)}</span>
+          <h3 style="font-size:15px;">${landLine}</h3>
+          ${s.notes ? `<p class="desc">${esc(s.notes)}</p>` : ''}
+          <div class="stepper">
+            <div class="step ${idx>=0?'on':''}">Pending</div>
+            <div class="step ${idx>=1?'on':''}">In progress</div>
+            <div class="step ${idx>=2?'on':''}">Completed</div>
+          </div>
+          <div class="row-actions">
+            <span class="chip ${s.status==='completed'?'done':s.status==='in_progress'?'progress':'pending'}">${statusLabels[s.status]}</span>
+            ${s.status!=='completed' ? `<button class="btn small secondary" onclick="app.advanceSurvey('${s.id}')">Mark next stage</button>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderMarket(){
+    const list = document.getElementById('marketList');
+    if(!listings.length){
+      list.innerHTML = '<div class="empty">No parcels listed for sale yet.</div>';
+      return;
+    }
+    list.innerHTML = listings.slice().reverse().map(l=>{
+      const p = parcelById(l.parcelId);
+      return `
+        <div class="card">
+          <span class="deed">${p ? esc(p.deed) : 'Unknown parcel'} · listed ${fmtDate(l.listedAt)} by ${esc(l.listedBy)}</span>
+          <h3 style="font-size:16px;">${p ? esc(p.location) : ''} — ${esc(l.price)}</h3>
+          <div class="meta">
+            <span>${p ? esc(p.owner) : ''}</span>
+            ${l.contact ? `<span>Contact: ${esc(l.contact)}</span>` : ''}
+          </div>
+          <div class="row-actions">
+            <span class="chip ${l.status==='sold' ? 'sold' : 'active-status'}">${l.status==='sold' ? 'Sold' : 'For sale'}</span>
+            ${l.status!=='sold' ? `
+              <button class="btn small secondary" onclick="app.expressInterest('${l.id}')">Express interest</button>
+              <button class="btn small secondary" onclick="app.markSold('${l.id}')">Mark sold</button>
+            ` : ''}
+          </div>
+          ${l.interested.length ? `
+            <div class="sub-list">
+              ${l.interested.slice().reverse().map(i=>`
+                <div class="sub-item">
+                  <span>${esc(i.name)}${i.message ? ' — ' + esc(i.message) : ''}</span>
+                  <span class="mono" style="font-size:11px;color:#6E8AA3;">${fmtDate(i.at)}</span>
+                </div>`).join('')}
+            </div>` : ''}
+        </div>`;
+    }).join('');
+  }
+
+  const landTypeLabels = {residential:'Residential', commercial:'Commercial', agricultural:'Agricultural', any:'Any type'};
+
+  function renderBuyRequests(){
+    const list = document.getElementById('buyList');
+    const active = buyerRequests.filter(b=>b.status==='active');
+    if(!active.length){
+      list.innerHTML = '<div class="empty">No buying requests posted yet.</div>';
+      return;
+    }
+    list.innerHTML = active.slice().reverse().map(b=>`
+      <div class="card">
+        <span class="deed">posted ${fmtDate(b.requestedAt)} by ${esc(b.requestedBy)}</span>
+        <h3 style="font-size:16px;">${esc(b.location)}${b.budget ? ' — ' + esc(b.budget) : ''}</h3>
+        <div class="meta">
+          <span>${landTypeLabels[b.landType] || b.landType}</span>
+          ${b.size ? `<span>${esc(b.size)}</span>` : ''}
+          <span>Contact: ${esc(b.contact)}</span>
+        </div>
+        ${b.notes ? `<p class="desc">${esc(b.notes)}</p>` : ''}
+        <div class="row-actions">
+          <span class="chip active-status">Looking to buy</span>
+          <button class="btn small secondary" onclick="app.closeBuyRequest('${b.id}')">Close request</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderPermissions(){
+    const list = document.getElementById('permList');
+    if(!permissions.length){
+      list.innerHTML = '<div class="empty">No permissions granted yet.</div>';
+      return;
+    }
+    list.innerHTML = permissions.slice().reverse().map(perm=>{
+      const p = perm.parcelId ? parcelById(perm.parcelId) : null;
+      const landTag = p ? esc(p.deed) : (perm.landInfo ? esc(perm.landInfo.location) + ' (not yet registered)' : 'Unknown parcel');
+      return `
+        <div class="card">
+          <span class="deed">${landTag} · granted ${fmtDate(perm.grantedAt)} by ${esc(perm.grantedBy)}</span>
+          <h3 style="font-size:16px;">${esc(perm.grantedTo)}</h3>
+          <div class="meta">
+            <span>${typeLabels[perm.type] || perm.type}</span>
+            ${perm.grantedToContact ? `<span>${esc(perm.grantedToContact)}</span>` : ''}
+            ${perm.expiresAt ? `<span>Expires ${fmtDate(perm.expiresAt)}</span>` : ''}
+          </div>
+          <div class="row-actions">
+            <span class="chip ${perm.status==='revoked' ? 'revoked' : 'active-status'}">${perm.status==='revoked' ? 'Revoked' : 'Active'}</span>
+            ${perm.status!=='revoked' ? `<button class="btn small secondary" onclick="app.revokePermission('${perm.id}')">Revoke</button>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderPermissionRequests(){
+    const list = document.getElementById('permRequestList');
+    const pending = permissionRequests.filter(r=>r.status==='pending');
+    if(!pending.length){
+      list.innerHTML = '<div class="empty">No pending permission requests.</div>';
+      return;
+    }
+    list.innerHTML = pending.slice().reverse().map(r=>{
+      const p = r.parcelId ? parcelById(r.parcelId) : null;
+      const landTag = p ? esc(p.deed) + ' — ' + esc(p.owner) + ', ' + esc(p.location) : (r.landInfo ? esc(r.landInfo.location) + (r.landInfo.owner ? ', owner: ' + esc(r.landInfo.owner) : '') + ' (not yet registered)' : '');
+      return `
+        <div class="card">
+          <span class="deed">requested ${fmtDate(r.requestedAt)} by ${esc(r.requestedBy)}</span>
+          <h3 style="font-size:16px;">${typeLabels[r.type] || r.type}</h3>
+          <div class="meta">
+            <span>${landTag}</span>
+            <span>Contact: ${esc(r.contact)}</span>
+          </div>
+          ${r.notes ? `<p class="desc">${esc(r.notes)}</p>` : ''}
+          <div class="row-actions">
+            <span class="chip pending">Pending</span>
+            <button class="btn small secondary" onclick="app.approvePermissionRequest('${r.id}')">Approve</button>
+            <button class="btn small secondary" onclick="app.declinePermissionRequest('${r.id}')">Decline</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderCounts(){
+    document.getElementById('cnt-registry').textContent = parcels.length;
+    document.getElementById('cnt-survey').textContent = surveys.length;
+    document.getElementById('cnt-market').textContent = listings.filter(l=>l.status==='active').length;
+    document.getElementById('cnt-permissions').textContent = permissions.filter(p=>p.status==='active').length;
+  }
+
+  function renderAll(){
+    renderSelects();
+    renderRegistry();
+    renderSurveys();
+    renderMarket();
+    renderBuyRequests();
+    renderPermissions();
+    renderPermissionRequests();
+    renderCounts();
+  }
+
+  document.getElementById('searchBox').addEventListener('input', renderRegistry);
+
+  // expose handlers used by inline onclick
+  window.app = { advanceSurvey, expressInterest, markSold, revokePermission, closeBuyRequest, approvePermissionRequest, declinePermissionRequest };
+
+  // ---------- init ----------
+  (async function init(){
+    document.getElementById('registryList').innerHTML = '<div class="empty">Loading registry…</div>';
+    await loadAll();
+    renderAll();
+  })();
+})();
+</script>
+</body>
+</html>
